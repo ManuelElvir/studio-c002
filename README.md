@@ -2,7 +2,7 @@
 
 Maquette 3D interactive de l'aménagement du studio (35 m²), réalisée avec three.js.
 
-**Démo :** https://<ton-utilisateur>.github.io/studio-c002/
+**Démo :** https://manuelelvir.github.io/studio-c002/
 
 ## Utilisation
 - Glisser pour tourner, pincer ou molette pour zoomer.
