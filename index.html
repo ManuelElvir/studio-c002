@@ -28,6 +28,13 @@ body{margin:0;height:100%;background:var(--scene);color:var(--ink);font-family:"
 .modes button:focus-visible,.views button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .caption{position:absolute;left:50%;bottom:72px;transform:translateX(-50%);width:min(560px,calc(100% - 24px));margin:0;padding:.7rem .9rem;background:var(--panel);border:1px solid var(--line);border-radius:12px;font-size:.8125rem;line-height:1.45;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
 .caption strong{font-weight:600;}
+.captoggle{display:flex;align-items:center;justify-content:space-between;gap:.75rem;width:100%;font:inherit;font-size:.8125rem;font-weight:600;color:var(--ink);background:none;border:0;padding:.1rem 0;cursor:pointer;text-align:left;}
+.captoggle:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+.chev{width:.45rem;height:.45rem;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-top:-.25rem;transition:transform .2s;flex:none;}
+.caption.collapsed .chev{transform:rotate(-135deg);margin-top:.25rem;}
+#caption{margin:.4rem 0 0;}
+.caption.collapsed #caption{display:none;}
+@media (prefers-reduced-motion:reduce){.chev{transition:none;}}
 .views{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:4px;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:14px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);max-width:calc(100% - 24px);overflow-x:auto;scrollbar-width:none;}
 .views::-webkit-scrollbar{display:none;}
 .views button{font:inherit;font-size:.8125rem;border:0;background:transparent;color:var(--ink);padding:.6rem .8rem;border-radius:10px;white-space:nowrap;cursor:pointer;flex:none;}
@@ -42,7 +49,7 @@ body{margin:0;height:100%;background:var(--scene);color:var(--ink);font-family:"
     <p>Fais glisser pour tourner, pince pour zoomer.</p>
   </div>
   <div class="modes" role="group" aria-label="Ambiance lumineuse"><button data-m="jour" aria-pressed="true">Jour</button><button data-m="soir" aria-pressed="false">Soirée</button><button data-m="cine" aria-pressed="false">Cinéma</button><button data-m="travail" aria-pressed="false">Travail</button></div>
-  <p class="caption" id="caption"></p>
+  <div class="caption" id="capbox"><button class="captoggle" id="captoggle" aria-expanded="true" aria-controls="caption"><span id="captitle"></span><span class="chev" aria-hidden="true"></span></button><p id="caption"></p></div>
   <nav class="views" aria-label="Points de vue">
     <button data-v="ensemble" aria-pressed="true">Vue d’ensemble</button>
     <button data-v="dessus" aria-pressed="false">Dessus</button>
@@ -475,12 +482,16 @@ const views={
   wc:{pos:[-.55,2.35,1.25],target:[-.6,.8,3.0],hide:['bath'],txt:'<strong>WC.</strong> Murs bicolores : papier peint terre cuite en bas jusqu’à 1,05 m, fine baguette en chêne, blanc au-dessus. Étagère colonne blanc et chêne à droite des toilettes : magazines à portée de main, papier toilette en vue, parfum et plantes. Tableau face au trône, à hauteur des yeux une fois assis. Dérouleur sur pied : rien n’est percé.'},
   cinema:{pos:[3.0,1.05,.45],target:[3.0,1.15,2.26],txt:'<strong>Mode cinéma.</strong> Rideaux tirés, lumière tamisée, la télé de 50 pouces sort du meuble au pied du lit. Environ 1,9 m entre l’oreiller et l’écran.'}
 };
-const caption=document.getElementById('caption');
+const caption=document.getElementById('caption'),captitle=document.getElementById('captitle'),capbox=document.getElementById('capbox'),captoggle=document.getElementById('captoggle');
+function setCaption(t){const m=t.match(/^<strong>(.*?)<\/strong>\s*/);captitle.textContent=m?m[1].replace(/\.$/,''):'';caption.innerHTML=m?t.slice(m[0].length):t;}
+let capOpen=window.innerWidth>=1024;try{const s=localStorage.getItem('capOpen');if(s!==null)capOpen=s==='1';}catch(e){}
+function applyCap(){capbox.classList.toggle('collapsed',!capOpen);captoggle.setAttribute('aria-expanded',capOpen?'true':'false');}
+captoggle.addEventListener('click',()=>{capOpen=!capOpen;applyCap();try{localStorage.setItem('capOpen',capOpen?'1':'0');}catch(e){}});applyCap();
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let tween=null,current='ensemble';
 function viewPos(v){const t=new THREE.Vector3(...v.target),p=new THREE.Vector3(...v.pos);
   if(v.fit&&camera.aspect<1.2){const k=Math.min(2.1,1.2/camera.aspect*.85);p.sub(t).multiplyScalar(Math.max(1,k)).add(t);}return {p,t};}
-function go(name,instant){current=name;const v=views[name];const {p,t}=viewPos(v);innerHide=v.hide||[];caption.innerHTML=v.txt;
+function go(name,instant){current=name;const v=views[name];const {p,t}=viewPos(v);innerHide=v.hide||[];setCaption(v.txt);
   document.querySelectorAll('.views button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===name?'true':'false'));
   if(instant||reduce){camera.position.copy(p);controls.target.copy(t);controls.update();tween=null;return;}
   tween={p0:camera.position.clone(),t0:controls.target.clone(),p,t,start:performance.now(),dur:900};}
