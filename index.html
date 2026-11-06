@@ -310,10 +310,11 @@ B(1.80,3.95,.004,.016,.70,2.02,mat.rugBed,scene,false);
 
 /* Étagère basse + projecteur */
 B(2.30,3.70,.06,.10,2.06,2.46,mat.oak);
-B(2.30,2.33,.10,.80,2.05,2.47,mat.oak);B(3.67,3.70,.10,.80,2.05,2.47,mat.oak);
-B(2.30,3.70,.10,.80,2.05,2.08,mat.oak);B(2.30,3.70,.10,.80,2.44,2.47,mat.oak);
-B(2.30,3.70,.77,.80,2.05,2.21,mat.oak);B(2.30,3.70,.77,.80,2.31,2.47,mat.oak);B(2.30,2.38,.77,.80,2.21,2.31,mat.oak);B(3.62,3.70,.77,.80,2.21,2.31,mat.oak);
-for(let x=2.36;x<3.66;x+=.045){B(x,x+.006,.12,.76,2.044,2.05,mat.oakDark,scene,false);B(x,x+.006,.12,.76,2.47,2.476,mat.oakDark,scene,false);}
+const BUF=.90; /* hauteur totale du buffet télé (pieds compris) */
+B(2.30,2.33,.10,BUF,2.05,2.47,mat.oak);B(3.67,3.70,.10,BUF,2.05,2.47,mat.oak);
+B(2.30,3.70,.10,BUF,2.05,2.08,mat.oak);B(2.30,3.70,.10,BUF,2.44,2.47,mat.oak);
+B(2.30,3.70,BUF-.03,BUF,2.05,2.21,mat.oak);B(2.30,3.70,BUF-.03,BUF,2.31,2.47,mat.oak);B(2.30,2.38,BUF-.03,BUF,2.21,2.31,mat.oak);B(3.62,3.70,BUF-.03,BUF,2.21,2.31,mat.oak);
+for(let x=2.36;x<3.66;x+=.045){B(x,x+.006,.12,BUF-.04,2.044,2.05,mat.oakDark,scene,false);B(x,x+.006,.12,BUF-.04,2.47,2.476,mat.oakDark,scene,false);}
 [[2.34,2.09],[3.66,2.09],[2.34,2.43],[3.66,2.43]].forEach(([x,z])=>C(x,z,.015,0,.06,mat.black,scene,12));
 function booksX(x0,x1,y,z0,z1){let x=x0,i=0;while(x<x1-.03){const w=.025+Math.random()*.02,h=.18+Math.random()*.12;B(x,x+w,y,y+h,z0,z1,bookCols[(i++)%bookCols.length]);x+=w+.004;}}
 function booksZ(z0,z1,y,x0,x1,parent){let z=z0,i=3;while(z<z1-.03){const w=.025+Math.random()*.02,h=.16+Math.random()*.1;B(x0,x1,y,y+h,z,z+w,bookCols[(i++)%bookCols.length],parent);z+=w+.004;}}
@@ -328,11 +329,11 @@ const film=canvasTex(310,250,(g,w,h)=>{g.fillStyle='#111';g.fillRect(0,0,w,h);
 const screenMat=new THREE.MeshStandardMaterial({map:film,emissive:new THREE.Color(0xffffff),emissiveMap:film,emissiveIntensity:0,roughness:.9,side:THREE.DoubleSide});
 const tvTex=film.clone();tvTex.needsUpdate=true;tvTex.repeat.set(.96,.69);tvTex.offset.set(.02,.07);
 screenMat.map=tvTex;screenMat.emissiveMap=tvTex;
-const tv=new THREE.Group();tv.position.set(3.0,.10,2.26);scene.add(tv);
+const TV0=BUF-.70;const tv=new THREE.Group();tv.position.set(3.0,TV0,2.26);scene.add(tv);
 B(-.56,.56,0,.65,-.02,.02,mat.screen,tv);
 const tvFace=new THREE.Mesh(new THREE.PlaneGeometry(1.09,.62),screenMat);tvFace.position.set(0,.325,-.021);tvFace.rotation.y=Math.PI;tv.add(tvFace);
 B(-.62,.62,.65,.70,-.05,.05,mat.oak,tv);
-const screenLight=new THREE.PointLight(0x9FB0FF,0,4,2);screenLight.position.set(3.0,1.2,1.9);scene.add(screenLight);
+const screenLight=new THREE.PointLight(0x9FB0FF,0,4,2);screenLight.position.set(3.0,BUF+.30,1.9);scene.add(screenLight);
 
 /* ---------- Repas ---------- */
 const _n1=scene.children.length;
@@ -480,7 +481,7 @@ const views={
   cuisine:{pos:[2.7,1.75,3.0],target:[2.8,.9,5.3],txt:'<strong>Cuisine.</strong> Évier du bailleur conservé, trois tiroirs à la place du lave-vaisselle, four combiné micro-ondes sous la plaque, frigo deux portes contre le placard. Égouttoir compact, barre adhésive sur la crédence, façades chêne et poignées noires, niche tapissée du même papier peint terre cuite que les WC, trois spots orientables.'},
   sdb:{pos:[1.9,3.1,2.9],target:[-.5,.7,.9],hide:['bath'],txt:'<strong>Salle d’eau.</strong> Rien n’est percé : barre de rideau télescopique, étagère d’angle à pression dans la douche pour les gels et l’enceinte étanche. Vasque collée à la cloison de la douche, lave-linge calé dans l’angle. Entre les deux, un meuble à linge en chêne à bac basculant, à hauteur du plan vasque : Le miroir est décalé vers la douche : à droite, un grand vase d’eucalyptus posé sur le meuble à linge fait contrepoids et rend le décalage volontaire. Parfums, crèmes et diffuseur sur son plateau, tapis de bain terre cuite.'},
   wc:{pos:[-.55,2.35,1.25],target:[-.6,.8,3.0],hide:['bath'],txt:'<strong>WC.</strong> Murs bicolores : papier peint terre cuite en bas jusqu’à 1,05 m, fine baguette en chêne, blanc au-dessus. Étagère colonne blanc et chêne à droite des toilettes : magazines à portée de main, papier toilette en vue, parfum et plantes. Tableau face au trône, à hauteur des yeux une fois assis. Dérouleur sur pied : rien n’est percé.'},
-  cinema:{pos:[3.0,1.05,.45],target:[3.0,1.15,2.26],txt:'<strong>Mode cinéma.</strong> Rideaux tirés, lumière tamisée, la télé de 50 pouces sort du meuble au pied du lit. Environ 1,9 m entre l’oreiller et l’écran.'}
+  cinema:{pos:[3.0,1.05,.45],target:[3.0,1.25,2.26],txt:'<strong>Mode cinéma.</strong> Rideaux tirés, lumière tamisée, la télé de 50 pouces sort du meuble au pied du lit. Environ 1,9 m entre l’oreiller et l’écran.'}
 };
 const caption=document.getElementById('caption'),captitle=document.getElementById('captitle'),capbox=document.getElementById('capbox'),captoggle=document.getElementById('captoggle');
 function setCaption(t){const m=t.match(/^<strong>(.*?)<\/strong>\s*/);captitle.textContent=m?m[1].replace(/\.$/,''):'';caption.innerHTML=m?t.slice(m[0].length):t;}
@@ -516,7 +517,7 @@ const tcK=wpTex.clone();tcK.needsUpdate=true;tcK.wrapS=tcK.wrapT=THREE.RepeatWra
 kitWall.forEach(m=>{m.userData.mat=wpKitTC;if(m.material!==ghost)m.material=wpKitTC;});
 function applyLights(){
   cur1.scale.x=.17+.83*lv.cur;cur2.scale.x=-(.22+.78*lv.cur);
-  tv.position.y=.10+.75*lv.scr;
+  tv.position.y=TV0+.75*lv.scr;
   const glow=Math.max(0,(lv.scr-.6)/.4);screenMat.emissiveIntensity=glow*1.1;screenLight.intensity=glow*.6;
   sun.intensity=lv.sun;hemi.intensity=lv.hemi;fill.intensity=lv.fill;pend.intensity=lv.pend;lampL.intensity=lv.lampL;floorL.intensity=lv.floorL;
   deskL.intensity=lv.desk;underL.intensity=lv.under;kitL.intensity=lv.kit;wallL.intensity=lv.wallk;readL.intensity=lv.floorL*.6;lampR.intensity=lv.lampL;mat.lamp.emissiveIntensity=lv.emis;
