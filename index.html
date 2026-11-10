@@ -385,12 +385,19 @@ B(PX-.08,PX+.08,0,.02,PZ-.08,PZ+.08,mat.white);C(PX,PZ,.016,.02,H,mat.oak,scene,
 C(4.70,4.40,.14,0,.38,mat.pot,scene,32,.17);
 S(4.70,.62,4.40,.22,.2,.22,mat.leaf);S(4.61,.86,4.34,.16,.16,.16,mat.leaf2);S(4.78,.92,4.46,.14,.15,.14,mat.leaf);S(4.69,1.08,4.38,.1,.11,.1,mat.leaf2);
 
-/* Rideaux sol-plafond */
+/* Rideaux sol-plafond : tringles bois chêne clair Ø28 L.150 (Arbo, Inspire ; la 2e recoupée à 120 cm),
+   supports sans perçage serrés sur les coffres de volets (Cessot, blanc), embouts bois aux deux bouts */
 function curtainGeo(w,h){const g=new THREE.PlaneGeometry(w,h,60,1);const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i);p.setZ(i,Math.sin((x+w/2)/w*Math.PI*16)*.035);}g.translate(w/2,h/2,0);g.computeVertexNormals();return g;}
-B(4.955,4.975,2.35,2.37,1.25,2.90,mat.black);B(4.955,4.975,2.35,2.37,3.66,4.86,mat.black);
-[1.56,2.84,3.71,4.54].forEach(z=>{B(4.96,5.06,2.40,2.43,z-.015,z+.015,mat.black);B(4.96,4.985,2.33,2.43,z-.015,z+.015,mat.black);});
-const cur1=new THREE.Mesh(curtainGeo(1.62,2.33),mat.curtain);cur1.position.set(4.965,.01,1.25);cur1.rotation.y=-Math.PI/2;cur1.castShadow=true;scene.add(cur1);
-const cur2=new THREE.Mesh(curtainGeo(1.18,2.33),mat.curtain);cur2.position.set(4.965,.01,4.86);cur2.rotation.y=-Math.PI/2;cur2.castShadow=true;scene.add(cur2);
+const RX=4.93,RY=2.365;
+function rodZ(z,len,r,m){const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,20),m);o.rotation.x=Math.PI/2;o.position.set(RX,RY,z);o.castShadow=true;scene.add(o);}
+function rod(z0,z1){rodZ((z0+z1)/2,z1-z0,.014,mat.oak);
+  [[z0,-1],[z1,1]].forEach(([z,s])=>{rodZ(z+s*.0175,.035,.017,mat.oak);const k=new THREE.Mesh(new THREE.SphereGeometry(.017,16,8),mat.oak);k.scale.set(1,1,.5);k.position.set(RX,RY,z+s*.035);scene.add(k);});}
+rod(1.40,2.90);rod(3.66,4.86);
+[1.55,2.85,3.70,4.55].forEach(z=>{const a=z-.02,b=z+.02;
+  B(4.985,5.13,2.40,2.412,a,b,mat.white);B(4.985,4.997,2.188,2.412,a,b,mat.white);B(4.985,5.06,2.188,2.20,a,b,mat.white);
+  B(4.915,4.985,2.336,2.348,z-.012,z+.012,mat.white);B(4.905,4.915,2.336,2.375,z-.012,z+.012,mat.white);});
+const cur1=new THREE.Mesh(curtainGeo(1.50,2.33),mat.curtain);cur1.position.set(RX,.01,1.40);cur1.rotation.y=-Math.PI/2;cur1.castShadow=true;scene.add(cur1);
+const cur2=new THREE.Mesh(curtainGeo(1.18,2.33),mat.curtain);cur2.position.set(RX,.01,4.86);cur2.rotation.y=-Math.PI/2;cur2.castShadow=true;scene.add(cur2);
 
 /* ---------- Salle d'eau ---------- */
 B(X0,-.6,0,H,0,.6,mat.wall);
@@ -477,7 +484,7 @@ const views={
   lecture:{pos:[2.2,1.55,4.5],target:[.25,1.0,3.5],txt:'<strong>Coin lecture.</strong> Fauteuil en lin et tabouret en chêne tournés l’un vers l’autre, sur un tapis demi-lune bordé de terre cuite. Au-dessus, une grande tenture tissée aux couleurs de la pièce, suspendue à une tringle en bois sur crochets adhésifs.'},
   nuit:{pos:[3.0,1.75,3.4],target:[3.0,.75,.3],txt:'<strong>Coin nuit.</strong> À gauche, table d’appoint en C tout en chêne : le pied se glisse sous le lit, le plateau passe au-dessus du matelas, avec une petite lampe terre cuite. À droite, côté bureau, un lampadaire avec une tablette pour le téléphone ou un livre. Miroir adhésif pleine hauteur sur le placard coulissant, qui monte jusqu’au plafond, télé escamotable au pied du lit.'},
   repas:{pos:[2.2,1.8,4.3],target:[4.3,.9,3.0],txt:'<strong>Repas.</strong> Trois chaises en triangle : deux côté fenêtre, une seule côté entrée en terre cuite, qui casse l’harmonie. La table est à 1 m du frigo et laisse environ 75 cm de passage devant le meuble télé. La grande plante reste devant la petite fenêtre.'},
-  bureau:{pos:[3.2,1.6,1.9],target:[5.0,1.0,.7],txt:'<strong>Bureau.</strong> Dans l’angle, contre le mur aux cinq prises, fenêtre à droite pour une lumière de côté sans reflet sur l’écran. Rideaux en lin sur tringles serrées sur les coffres de volets roulants, sans perçage. Le radiateur entre les fenêtres reste dégagé. À gauche de la grande fenêtre, une étagère à pression sol-plafond pour deux plantes, tes livres préférés, la manette et une figurine. Bureau assis-debout rangé en position haute, chaise dessous : passe en Travail pour le descendre et sortir la chaise.'},
+  bureau:{pos:[3.2,1.6,1.9],target:[5.0,1.0,.7],txt:'<strong>Bureau.</strong> Dans l’angle, contre le mur aux cinq prises, fenêtre à droite pour une lumière de côté sans reflet sur l’écran. Rideaux en lin sur tringles en bois chêne clair, posées sur des supports blancs serrés sur les coffres de volets roulants, sans perçage. Le radiateur entre les fenêtres reste dégagé. À gauche de la grande fenêtre, une étagère à pression sol-plafond pour deux plantes, tes livres préférés, la manette et une figurine. Bureau assis-debout rangé en position haute, chaise dessous : passe en Travail pour le descendre et sortir la chaise.'},
   cuisine:{pos:[2.7,1.75,3.0],target:[2.8,.9,5.3],txt:'<strong>Cuisine.</strong> Évier du bailleur conservé, trois tiroirs à la place du lave-vaisselle, four combiné micro-ondes sous la plaque, frigo deux portes contre le placard. Égouttoir compact, barre adhésive sur la crédence, façades chêne et poignées noires, niche tapissée du même papier peint terre cuite que les WC, trois spots orientables.'},
   sdb:{pos:[1.9,3.1,2.9],target:[-.5,.7,.9],hide:['bath'],txt:'<strong>Salle d’eau.</strong> Rien n’est percé : barre de rideau télescopique, étagère d’angle à pression dans la douche pour les gels et l’enceinte étanche. Vasque collée à la cloison de la douche, lave-linge calé dans l’angle. Entre les deux, un meuble à linge en chêne à bac basculant, à hauteur du plan vasque : Le miroir est décalé vers la douche : à droite, un grand vase d’eucalyptus posé sur le meuble à linge fait contrepoids et rend le décalage volontaire. Parfums, crèmes et diffuseur sur son plateau, tapis de bain terre cuite.'},
   wc:{pos:[-.55,2.35,1.25],target:[-.6,.8,3.0],hide:['bath'],txt:'<strong>WC.</strong> Murs bicolores : papier peint terre cuite en bas jusqu’à 1,05 m, fine baguette en chêne, blanc au-dessus. Étagère colonne blanc et chêne à droite des toilettes : magazines à portée de main, papier toilette en vue, parfum et plantes. Tableau face au trône, à hauteur des yeux une fois assis. Dérouleur sur pied : rien n’est percé.'},
