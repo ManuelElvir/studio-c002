@@ -94,7 +94,7 @@ const mat={
   glass:M(0xBFD9E6,.05,0,{transparent:true,opacity:.25,depthWrite:false}),screen:M(0x15171A,.25,.2),
   seam:M(0xBFBDB7,.8),mirror:M(0xDCE6EA,.04,.95),splash:M(0xDCD7CE,.45),plinth:M(0x8C8B87,.8),
   lamp:M(0xF3E6CB,.9,0,{emissive:0xFFD49A,emissiveIntensity:.45}),zone:M(0x55575B,.4),grayKey:M(0xDADBDD,.5),
-  curtain:M(0xE6E0D5,1,0,{side:THREE.DoubleSide}),amber:M(0xD9A35B,.15,0,{transparent:true,opacity:.8}),
+  curtain:M(0xBDB393,1,0,{side:THREE.DoubleSide}),amber:M(0xD9A35B,.15,0,{transparent:true,opacity:.8}),
   mat:M(0x7B6A55,1),bathmat:M(0xB5755A,1),towel:M(0xA9BBA3,1),towel2:M(0xE3C9A8,1),hat:M(0x6B5845,.9),dish:M(0x3F5A6B,.5),proj:M(0xE6E6E3,.4)
 };
 const bookCols=[0x6E8B9C,0xC08B5C,0x8E9B7A,0xD9CBB0,0x5C5F73,0xB65F4E,0xE3D9C6].map(c=>M(c,.85));
@@ -385,19 +385,31 @@ B(PX-.08,PX+.08,0,.02,PZ-.08,PZ+.08,mat.white);C(PX,PZ,.016,.02,H,mat.oak,scene,
 C(4.70,4.40,.14,0,.38,mat.pot,scene,32,.17);
 S(4.70,.62,4.40,.22,.2,.22,mat.leaf);S(4.61,.86,4.34,.16,.16,.16,mat.leaf2);S(4.78,.92,4.46,.14,.15,.14,mat.leaf);S(4.69,1.08,4.38,.1,.11,.1,mat.leaf2);
 
-/* Rideaux sol-plafond : tringles bois chêne clair Ø28 L.150 (Arbo, Inspire ; la 2e recoupée à 120 cm),
-   supports sans perçage serrés sur les coffres de volets (Cessot, blanc), embouts bois aux deux bouts */
+/* Rideaux : tringles bois chêne clair Ø28 (Arbo, Inspire ; 150 cm, la 2e recoupée à 105 cm), supports sans perçage
+   serrés sur les coffres de volets (Cessot, blanc), embouts bois. Rez-de-chaussée sur jardin : sur chaque tringle,
+   côte à côte, un occultant beige (IKEA BENGTA, replié côté extérieur) et un rideau filtrant blanc (IKEA GINSTMOTT,
+   replié vers le trumeau), sur anneaux à pinces blancs (IKEA SYRLIG). Jour : filtrant tiré ; soir/cinéma : occultant tiré. */
 function curtainGeo(w,h){const g=new THREE.PlaneGeometry(w,h,60,1);const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i);p.setZ(i,Math.sin((x+w/2)/w*Math.PI*16)*.035);}g.translate(w/2,h/2,0);g.computeVertexNormals();return g;}
-const RX=4.93,RY=2.365;
+const RX=4.93,RY=2.365,CH=2.29;
 function rodZ(z,len,r,m){const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,20),m);o.rotation.x=Math.PI/2;o.position.set(RX,RY,z);o.castShadow=true;scene.add(o);}
 function rod(z0,z1){rodZ((z0+z1)/2,z1-z0,.014,mat.oak);
   [[z0,-1],[z1,1]].forEach(([z,s])=>{rodZ(z+s*.0175,.035,.017,mat.oak);const k=new THREE.Mesh(new THREE.SphereGeometry(.017,16,8),mat.oak);k.scale.set(1,1,.5);k.position.set(RX,RY,z+s*.035);scene.add(k);});}
-rod(1.40,2.90);rod(3.66,4.86);
+rod(1.45,2.95);rod(3.60,4.65);
 [1.55,2.85,3.70,4.55].forEach(z=>{const a=z-.02,b=z+.02;
   B(4.985,5.13,2.40,2.412,a,b,mat.white);B(4.985,4.997,2.188,2.412,a,b,mat.white);B(4.985,5.06,2.188,2.20,a,b,mat.white);
   B(4.915,4.985,2.336,2.348,z-.012,z+.012,mat.white);B(4.905,4.915,2.336,2.375,z-.012,z+.012,mat.white);});
-const cur1=new THREE.Mesh(curtainGeo(1.50,2.33),mat.curtain);cur1.position.set(RX,.01,1.40);cur1.rotation.y=-Math.PI/2;cur1.castShadow=true;scene.add(cur1);
-const cur2=new THREE.Mesh(curtainGeo(1.18,2.33),mat.curtain);cur2.position.set(RX,.01,4.86);cur2.rotation.y=-Math.PI/2;cur2.castShadow=true;scene.add(cur2);
+const sheerMat=M(0xF6F4EF,1,0,{side:THREE.DoubleSide,transparent:true,opacity:.72,depthWrite:false});
+const ringGeo=new THREE.TorusGeometry(.019,.0028,6,18),clipGeo=new THREE.BoxGeometry(.006,.03,.004);
+/* drape(ancre, sens, support le plus proche, largeur max, matériau, ombre) → fonction qui règle la largeur dépliée.
+   Le 1er anneau reste au-delà du support (bord du rideau au-delà du cadre), les autres ne passent pas le support. */
+function drape(z0,dir,sup,span,m,shadow){
+  const c=new THREE.Mesh(curtainGeo(span,CH),m);c.position.set(RX,.01,z0);c.rotation.y=-Math.PI/2;c.castShadow=shadow;scene.add(c);
+  const rings=[];for(let i=0;i<9;i++){const g=new THREE.Group();const r=new THREE.Mesh(ringGeo,mat.white);r.position.y=RY-.005;
+    const k=new THREE.Mesh(clipGeo,mat.white);k.position.y=RY-.045;g.add(r,k);g.position.x=RX;scene.add(g);rings.push(g);}
+  return w=>{c.scale.x=dir*w/span;const e=z0+dir*w;rings.forEach((g,i)=>{g.position.z=i?sup+(e-sup)*(i-1)/7:z0;});};}
+const occ1=drape(1.48,1,1.57,1.44,mat.curtain,true),fil1=drape(2.92,-1,2.83,1.44,sheerMat,false);
+const occ2=drape(4.62,-1,4.53,.99,mat.curtain,true),fil2=drape(3.63,1,3.72,.99,sheerMat,false);
+function setCurtains(c){occ1(.27+1.05*c);fil1(.12+1.05*(1-c));occ2(.22+.66*c);fil2(.11+.66*(1-c));}
 
 /* ---------- Salle d'eau ---------- */
 B(X0,-.6,0,H,0,.6,mat.wall);
@@ -484,7 +496,7 @@ const views={
   lecture:{pos:[2.2,1.55,4.5],target:[.25,1.0,3.5],txt:'<strong>Coin lecture.</strong> Fauteuil en lin et tabouret en chêne tournés l’un vers l’autre, sur un tapis demi-lune bordé de terre cuite. Au-dessus, une grande tenture tissée aux couleurs de la pièce, suspendue à une tringle en bois sur crochets adhésifs.'},
   nuit:{pos:[3.0,1.75,3.4],target:[3.0,.75,.3],txt:'<strong>Coin nuit.</strong> À gauche, table d’appoint en C tout en chêne : le pied se glisse sous le lit, le plateau passe au-dessus du matelas, avec une petite lampe terre cuite. À droite, côté bureau, un lampadaire avec une tablette pour le téléphone ou un livre. Miroir adhésif pleine hauteur sur le placard coulissant, qui monte jusqu’au plafond, télé escamotable au pied du lit.'},
   repas:{pos:[2.2,1.8,4.3],target:[4.3,.9,3.0],txt:'<strong>Repas.</strong> Trois chaises en triangle : deux côté fenêtre, une seule côté entrée en terre cuite, qui casse l’harmonie. La table est à 1 m du frigo et laisse environ 75 cm de passage devant le meuble télé. La grande plante reste devant la petite fenêtre.'},
-  bureau:{pos:[3.2,1.6,1.9],target:[5.0,1.0,.7],txt:'<strong>Bureau.</strong> Dans l’angle, contre le mur aux cinq prises, fenêtre à droite pour une lumière de côté sans reflet sur l’écran. Rideaux en lin sur tringles en bois chêne clair, posées sur des supports blancs serrés sur les coffres de volets roulants, sans perçage. Le radiateur entre les fenêtres reste dégagé. À gauche de la grande fenêtre, une étagère à pression sol-plafond pour deux plantes, tes livres préférés, la manette et une figurine. Bureau assis-debout rangé en position haute, chaise dessous : passe en Travail pour le descendre et sortir la chaise.'},
+  bureau:{pos:[3.2,1.6,1.9],target:[5.0,1.0,.7],txt:'<strong>Bureau.</strong> Dans l’angle, contre le mur aux cinq prises, fenêtre à droite pour une lumière de côté sans reflet sur l’écran. Sur chaque tringle en chêne clair (supports blancs serrés sur les coffres de volets, sans perçage), un rideau filtrant blanc et un occultant beige côte à côte : le jour, le filtrant protège des regards côté jardin ; le soir, l’occultant prend le relais (passe en Soirée). Le radiateur entre les fenêtres reste dégagé. À gauche de la grande fenêtre, une étagère à pression sol-plafond pour deux plantes, tes livres préférés, la manette et une figurine. Bureau assis-debout rangé en position haute, chaise dessous : passe en Travail pour le descendre et sortir la chaise.'},
   cuisine:{pos:[2.7,1.75,3.0],target:[2.8,.9,5.3],txt:'<strong>Cuisine.</strong> Évier du bailleur conservé, trois tiroirs à la place du lave-vaisselle, four combiné micro-ondes sous la plaque, frigo deux portes contre le placard. Égouttoir compact, barre adhésive sur la crédence, façades chêne et poignées noires, niche tapissée du même papier peint terre cuite que les WC, trois spots orientables.'},
   sdb:{pos:[1.9,3.1,2.9],target:[-.5,.7,.9],hide:['bath'],txt:'<strong>Salle d’eau.</strong> Rien n’est percé : barre de rideau télescopique, étagère d’angle à pression dans la douche pour les gels et l’enceinte étanche. Vasque collée à la cloison de la douche, lave-linge calé dans l’angle. Entre les deux, un meuble à linge en chêne à bac basculant, à hauteur du plan vasque : Le miroir est décalé vers la douche : à droite, un grand vase d’eucalyptus posé sur le meuble à linge fait contrepoids et rend le décalage volontaire. Parfums, crèmes et diffuseur sur son plateau, tapis de bain terre cuite.'},
   wc:{pos:[-.55,2.35,1.25],target:[-.6,.8,3.0],hide:['bath'],txt:'<strong>WC.</strong> Murs bicolores : papier peint terre cuite en bas jusqu’à 1,05 m, fine baguette en chêne, blanc au-dessus. Étagère colonne blanc et chêne à droite des toilettes : magazines à portée de main, papier toilette en vue, parfum et plantes. Tableau face au trône, à hauteur des yeux une fois assis. Dérouleur sur pied : rien n’est percé.'},
@@ -523,7 +535,7 @@ modeBtns.forEach(b=>b.addEventListener('click',()=>{const m=b.dataset.m;setMode(
 const tcK=wpTex.clone();tcK.needsUpdate=true;tcK.wrapS=tcK.wrapT=THREE.RepeatWrapping;tcK.repeat.set(11,4);const wpKitTC=new THREE.MeshStandardMaterial({map:tcK,roughness:.9});
 kitWall.forEach(m=>{m.userData.mat=wpKitTC;if(m.material!==ghost)m.material=wpKitTC;});
 function applyLights(){
-  cur1.scale.x=.17+.83*lv.cur;cur2.scale.x=-(.22+.78*lv.cur);
+  setCurtains(lv.cur);
   tv.position.y=TV0+.75*lv.scr;
   const glow=Math.max(0,(lv.scr-.6)/.4);screenMat.emissiveIntensity=glow*1.1;screenLight.intensity=glow*.6;
   sun.intensity=lv.sun;hemi.intensity=lv.hemi;fill.intensity=lv.fill;pend.intensity=lv.pend;lampL.intensity=lv.lampL;floorL.intensity=lv.floorL;
