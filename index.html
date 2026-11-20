@@ -237,8 +237,9 @@ B(3.28,3.46,.10,.84,4.90,4.92,frontMat);B(3.36,3.38,.68,.80,4.885,4.90,handleMat
 B(3.47,3.53,.10,.84,4.90,4.92,frontMat);
 B(2.67,3.53,.86,.90,4.91,D,mat.oak);
 B(2.72,3.01,.90,.905,4.98,5.50,mat.screen);C(2.865,5.13,.085,.905,.907,mat.zone,scene,32);C(2.865,5.36,.065,.905,.907,mat.zone,scene,32);
-B(3.06,3.37,.90,.92,5.03,5.37,mat.white);B(3.065,3.365,.92,1.20,5.035,5.365,mat.white);B(3.08,3.35,1.20,1.24,5.05,5.35,mat.white);
-B(3.10,3.33,.95,1.10,5.025,5.03,mat.screen,scene,false);B(3.17,3.26,1.12,1.16,5.025,5.03,mat.zone,scene,false);B(3.19,3.24,.98,1.00,5.00,5.025,mat.black);
+const afBody=M(0xDDD3C4,.6),afDark=M(0x3E3E40,.4,.1),afGold=M(0xC9A063,.35,.65);
+B(3.08,3.36,.90,.915,5.03,5.39,afDark);B(3.085,3.355,.915,1.19,5.035,5.385,afBody);B(3.085,3.355,1.19,1.205,5.035,5.385,afGold);B(3.10,3.34,1.11,1.185,5.028,5.035,afDark);
+B(3.09,3.35,1.08,1.084,5.03,5.035,afDark,scene,false);B(3.21,3.23,.95,1.06,5.005,5.03,afGold);
 C(3.455,5.17,.065,.90,1.08,bord,scene,24,.055);C(3.455,5.17,.018,1.08,1.11,mat.black,scene,12);B(3.42,3.435,.95,1.06,5.16,5.18,mat.black);
 B(3.545,4.135,0,.70,4.87,5.47,mat.white);B(3.545,4.135,.72,1.92,4.87,5.47,mat.white);B(3.545,4.135,.70,.72,4.88,5.46,mat.seam);
 B(3.575,3.595,.40,.62,4.84,4.87,mat.chrome);B(3.575,3.595,.85,1.25,4.84,4.87,mat.chrome);
@@ -333,6 +334,10 @@ B(-.56,.56,0,.65,-.02,.02,mat.screen,tv);
 const tvFace=new THREE.Mesh(new THREE.PlaneGeometry(1.09,.62),screenMat);tvFace.position.set(0,.325,-.021);tvFace.rotation.y=Math.PI;tv.add(tvFace);
 B(-.62,.62,.65,.70,-.05,.05,mat.oak,tv);
 const screenLight=new THREE.PointLight(0x9FB0FF,0,4,2);screenLight.position.set(3.0,BUF+.30,1.9);scene.add(screenLight);
+C(3.0,2.02,.05,H-.02,H,mat.white,scene,20);C(3.0,2.02,.004,2.44,H-.02,mat.white,scene,6);
+const lantern=new THREE.Mesh(new THREE.SphereGeometry(.22,32,20),mat.lamp);lantern.scale.y=.92;lantern.position.set(3.0,2.24,2.02);scene.add(lantern);
+for(let i=-3;i<=3;i++){const rib=new THREE.Mesh(new THREE.TorusGeometry(Math.sqrt(.0484-Math.pow(i*.055,2)),.0015,4,40),mat.seam);rib.rotation.x=Math.PI/2;rib.position.set(3.0,2.24+i*.055*.92,2.02);scene.add(rib);}
+const lanternL=new THREE.PointLight(0xFFE2B8,.3,5,2);lanternL.position.set(3.0,2.10,2.02);scene.add(lanternL);
 
 /* ---------- Repas ---------- */
 const _n1=scene.children.length;
@@ -496,7 +501,7 @@ const views={
   nuit:{pos:[3.0,1.75,3.4],target:[3.0,.75,.3],txt:'<strong>Coin nuit.</strong> À gauche, table d’appoint en C tout en chêne : le pied se glisse sous le lit, le plateau passe au-dessus du matelas, avec une petite lampe terre cuite. À droite, côté bureau, un lampadaire avec une tablette pour le téléphone ou un livre. Miroir adhésif pleine hauteur sur le placard coulissant, qui monte jusqu’au plafond, télé escamotable au pied du lit.'},
   repas:{pos:[2.2,1.8,4.3],target:[4.3,.9,3.0],txt:'<strong>Repas.</strong> Trois chaises en triangle : deux côté fenêtre, une seule côté entrée en terre cuite, qui casse l’harmonie. La table est à 1 m du frigo et laisse environ 75 cm de passage devant le meuble télé. La grande plante reste devant la petite fenêtre.'},
   bureau:{pos:[3.2,1.6,1.9],target:[5.0,1.0,.7],txt:'<strong>Bureau.</strong> Dans l’angle, contre le mur aux cinq prises, fenêtre à droite pour une lumière de côté sans reflet sur l’écran. Sur chaque tringle en chêne clair (supports blancs serrés sur les coffres de volets, sans perçage), un rideau filtrant blanc et un occultant beige côte à côte : le jour, le filtrant protège des regards côté jardin ; le soir, l’occultant prend le relais (passe en Soirée). Le radiateur entre les fenêtres reste dégagé. À gauche de la grande fenêtre, une étagère à pression sol-plafond pour deux plantes, tes livres préférés, la manette et une figurine. Bureau assis-debout rangé en position haute, chaise dessous : passe en Travail pour le descendre et sortir la chaise.'},
-  cuisine:{pos:[2.7,1.75,3.0],target:[2.8,.9,5.3],txt:'<strong>Cuisine.</strong> 148 cm à côté de l’évier : meuble 60 cm à 3 tiroirs sous une plaque à induction 2 feux (30 cm), coulissant 20 cm et fileuse, puis le frigo. Sans four : tout le bas sert au rangement, avec en plus les tiroirs sous l’égouttoir. Air fryer sur le plan, dégagé du mur pour respirer. Plan chêne de 86 × 60 cm.'},
+  cuisine:{pos:[2.7,1.75,3.0],target:[2.8,.9,5.3],txt:'<strong>Cuisine.</strong> 148 cm à côté de l’évier : meuble 60 cm à 3 tiroirs sous une plaque à induction 2 feux (30 cm), coulissant 20 cm et fileuse, puis le frigo. Sans four : tout le bas sert au rangement, avec en plus les tiroirs sous l’égouttoir. Air fryer Ninja MAX PRO champagne et or sur le plan, dégagé du mur pour respirer. Plan chêne de 86 × 60 cm.'},
   sdb:{pos:[1.9,3.1,2.9],target:[-.5,.7,.9],hide:['bath'],txt:'<strong>Salle d’eau.</strong> Rien n’est percé : barre de rideau télescopique, étagère d’angle à pression dans la douche pour les gels et l’enceinte étanche. Vasque collée à la cloison de la douche, lave-linge calé dans l’angle. Entre les deux, un meuble à linge en chêne à bac basculant, à hauteur du plan vasque : Le miroir est décalé vers la douche : à droite, un grand vase d’eucalyptus posé sur le meuble à linge fait contrepoids et rend le décalage volontaire. Parfums, crèmes et diffuseur sur son plateau, tapis de bain terre cuite.'},
   wc:{pos:[-.55,2.35,1.25],target:[-.6,.8,3.0],hide:['bath'],txt:'<strong>WC.</strong> Murs bicolores : papier peint terre cuite en bas jusqu’à 1,05 m, fine baguette en chêne, blanc au-dessus. Étagère colonne blanc et chêne à droite des toilettes : magazines à portée de main, papier toilette en vue, parfum et plantes. Tableau face au trône, à hauteur des yeux une fois assis. Dérouleur sur pied : rien n’est percé.'},
   cinema:{pos:[3.0,1.05,.45],target:[3.0,1.25,2.26],txt:'<strong>Mode cinéma.</strong> Rideaux tirés, lumière tamisée, la télé de 50 pouces sort du meuble au pied du lit. Environ 1,9 m entre l’oreiller et l’écran.'}
@@ -538,7 +543,7 @@ function applyLights(){
   tv.position.y=TV0+.75*lv.scr;
   const glow=Math.max(0,(lv.scr-.6)/.4);screenMat.emissiveIntensity=glow*1.1;screenLight.intensity=glow*.6;
   sun.intensity=lv.sun;hemi.intensity=lv.hemi;fill.intensity=lv.fill;pend.intensity=lv.pend;lampL.intensity=lv.lampL;floorL.intensity=lv.floorL;
-  deskL.intensity=lv.desk;underL.intensity=lv.under;kitL.intensity=lv.kit;wallL.intensity=lv.wallk;readL.intensity=lv.floorL*.6;lampR.intensity=lv.lampL;mat.lamp.emissiveIntensity=lv.emis;
+  deskL.intensity=lv.desk;underL.intensity=lv.under;kitL.intensity=lv.kit;wallL.intensity=lv.wallk;readL.intensity=lv.floorL*.6;lanternL.intensity=lv.hemi*.5;lampR.intensity=lv.lampL;mat.lamp.emissiveIntensity=lv.emis;
   const dy=.35*(1-lv.work);deskTop.position.y=dy;deskLegs.forEach(l=>{l.scale.y=(.72+dy)/.72;l.position.y=(.72+dy)/2;});if(ocG)ocG.position.x=4.85-.67*lv.work;}
 
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/Math.max(h,1);camera.updateProjectionMatrix();}
